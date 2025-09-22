@@ -19,6 +19,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "cli": "node dist/cli.js",
+    "install-hooks": "bash scripts/install-hooks.sh",
     "prepublishOnly": "npm run build && npm test",
     "prepack": "npm run build"
   },

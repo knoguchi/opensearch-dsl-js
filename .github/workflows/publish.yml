@@ -14,41 +14,66 @@ on:
           - patch
           - minor
           - major
+      dry_run:
+        description: 'Dry run (skip actual publish)'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+      id-token: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          
+          fetch-depth: 0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           registry-url: 'https://registry.npmjs.org'
-          
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Run tests
         run: npm test
-        
+
       - name: Build package
         run: npm run build
-        
+
+      - name: Check package contents
+        run: npm pack --dry-run
+
       - name: Bump version (manual dispatch only)
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' && !inputs.dry_run
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           npm version ${{ github.event.inputs.version }}
           git push origin main --tags
-        
+
+      - name: Dry run publish
+        if: inputs.dry_run == true
+        run: npm publish --dry-run
+
       - name: Publish to NPM
+        if: inputs.dry_run != true
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create package summary
+        if: inputs.dry_run != true
+        run: |
+          echo "## Published Package" >> $GITHUB_STEP_SUMMARY
+          echo "- **Package:** opensearch-dsl-js" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** $(node -p "require('./package.json').version")" >> $GITHUB_STEP_SUMMARY
+          echo "- **Registry:** https://www.npmjs.com/package/opensearch-dsl-js" >> $GITHUB_STEP_SUMMARY
