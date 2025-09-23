@@ -26,6 +26,12 @@ export { ConstantScoreQuery } from './queries/ConstantScoreQuery.js';
 export { NestedQuery } from './queries/NestedQuery.js';
 export { MoreLikeThisQuery } from './queries/MoreLikeThisQuery.js';
 export { ScriptScoreQuery } from './queries/ScriptScoreQuery.js';
+export { QueryStringQuery } from './queries/QueryStringQuery.js';
+export { SimpleQueryStringQuery } from './queries/SimpleQueryStringQuery.js';
+export { MatchPhrasePrefixQuery } from './queries/MatchPhrasePrefixQuery.js';
+export { TermsSetQuery } from './queries/TermsSetQuery.js';
+export { DisMaxQuery } from './queries/DisMaxQuery.js';
+export { FunctionScoreQuery } from './queries/FunctionScoreQuery.js';
 
 // Export base classes and types
 export { Query } from './core/Query.js';

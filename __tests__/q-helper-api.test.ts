@@ -10,7 +10,8 @@ import {
   BoolQuery, TermQuery, TermsQuery, MatchQuery, MatchPhraseQuery,
   MultiMatchQuery, MatchAllQuery, RangeQuery, WildcardQuery,
   PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery,
-  BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery
+  BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery,
+  QueryStringQuery, SimpleQueryStringQuery, MatchPhrasePrefixQuery, TermsSetQuery, DisMaxQuery, FunctionScoreQuery
 } from '../src/index.js';
 
 describe('Q Helper API - Type Contracts', () => {
@@ -108,6 +109,38 @@ describe('Q Helper API - Type Contracts', () => {
     const script = { source: '_score * doc["boost"].value' };
     const query = Q.scriptScore(innerQuery, script);
     expect(query).toBeInstanceOf(ScriptScoreQuery);
+  });
+
+  test('Q.queryString() returns QueryStringQuery instance', () => {
+    const query = Q.queryString('title:search AND status:active');
+    expect(query).toBeInstanceOf(QueryStringQuery);
+  });
+
+  test('Q.simpleQueryString() returns SimpleQueryStringQuery instance', () => {
+    const query = Q.simpleQueryString('search terms');
+    expect(query).toBeInstanceOf(SimpleQueryStringQuery);
+  });
+
+  test('Q.matchPhrasePrefix() returns MatchPhrasePrefixQuery instance', () => {
+    const query = Q.matchPhrasePrefix('title', 'quick brown f');
+    expect(query).toBeInstanceOf(MatchPhrasePrefixQuery);
+  });
+
+  test('Q.termsSet() returns TermsSetQuery instance', () => {
+    const query = Q.termsSet('tags', ['tech', 'science', 'news']);
+    expect(query).toBeInstanceOf(TermsSetQuery);
+  });
+
+  test('Q.disMax() returns DisMaxQuery instance', () => {
+    const queries = [Q.term('status', 'active'), Q.match('title', 'search')];
+    const query = Q.disMax(queries);
+    expect(query).toBeInstanceOf(DisMaxQuery);
+  });
+
+  test('Q.functionScore() returns FunctionScoreQuery instance', () => {
+    const innerQuery = Q.matchAll();
+    const query = Q.functionScore(innerQuery);
+    expect(query).toBeInstanceOf(FunctionScoreQuery);
   });
 });
 
@@ -288,6 +321,67 @@ describe('Q Helper API - JSON Output Validation', () => {
       script_score: {
         query: { match_all: {} },
         script: { source: '_score * 2' }
+      }
+    });
+  });
+
+  test('Q.queryString() generates correct query_string query', () => {
+    const query = Q.queryString('title:search AND status:active');
+    expect(query.toJSON()).toEqual({
+      query_string: {
+        query: 'title:search AND status:active'
+      }
+    });
+  });
+
+  test('Q.simpleQueryString() generates correct simple_query_string query', () => {
+    const query = Q.simpleQueryString('search terms');
+    expect(query.toJSON()).toEqual({
+      simple_query_string: {
+        query: 'search terms'
+      }
+    });
+  });
+
+  test('Q.matchPhrasePrefix() generates correct match_phrase_prefix query', () => {
+    const query = Q.matchPhrasePrefix('title', 'quick brown f');
+    expect(query.toJSON()).toEqual({
+      match_phrase_prefix: {
+        title: 'quick brown f'
+      }
+    });
+  });
+
+  test('Q.termsSet() generates correct terms_set query', () => {
+    const query = Q.termsSet('tags', ['tech', 'science']);
+    expect(query.toJSON()).toEqual({
+      terms_set: {
+        tags: {
+          terms: ['tech', 'science']
+        }
+      }
+    });
+  });
+
+  test('Q.disMax() generates correct dis_max query', () => {
+    const queries = [Q.term('status', 'active'), Q.match('title', 'search')];
+    const query = Q.disMax(queries);
+    expect(query.toJSON()).toEqual({
+      dis_max: {
+        queries: [
+          { term: { status: 'active' } },
+          { match: { title: 'search' } }
+        ]
+      }
+    });
+  });
+
+  test('Q.functionScore() generates correct function_score query', () => {
+    const innerQuery = Q.matchAll();
+    const query = Q.functionScore(innerQuery);
+    expect(query.toJSON()).toEqual({
+      function_score: {
+        query: { match_all: {} }
       }
     });
   });

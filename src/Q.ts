@@ -22,6 +22,12 @@ import { ConstantScoreQuery } from './queries/ConstantScoreQuery.js';
 import { NestedQuery } from './queries/NestedQuery.js';
 import { MoreLikeThisQuery, LikeDocument } from './queries/MoreLikeThisQuery.js';
 import { ScriptScoreQuery, ScriptConfig } from './queries/ScriptScoreQuery.js';
+import { QueryStringQuery } from './queries/QueryStringQuery.js';
+import { SimpleQueryStringQuery } from './queries/SimpleQueryStringQuery.js';
+import { MatchPhrasePrefixQuery } from './queries/MatchPhrasePrefixQuery.js';
+import { TermsSetQuery } from './queries/TermsSetQuery.js';
+import { DisMaxQuery } from './queries/DisMaxQuery.js';
+import { FunctionScoreQuery, FunctionConfig } from './queries/FunctionScoreQuery.js';
 import { Query } from './core/Query.js';
 import { ESValue, ESField } from './core/types.js';
 
@@ -37,18 +43,22 @@ export const Q = {
   matchPhrase: (field: ESField, phrase: string): MatchPhraseQuery => new MatchPhraseQuery(field, phrase),
   multiMatch: (query: string, fields: ESField | ESField[]): MultiMatchQuery => new MultiMatchQuery(query, fields),
   matchAll: (): MatchAllQuery => new MatchAllQuery(),
+  matchPhrasePrefix: (field: ESField, phrase: string): MatchPhrasePrefixQuery => new MatchPhrasePrefixQuery(field, phrase),
   range: (field: ESField): RangeQuery => new RangeQuery(field),
   wildcard: (field: ESField, pattern: string): WildcardQuery => new WildcardQuery(field, pattern),
   prefix: (field: ESField, value: string): PrefixQuery => new PrefixQuery(field, value),
   fuzzy: (field: ESField, value: ESValue): FuzzyQuery => new FuzzyQuery(field, value),
   exists: (field: ESField): ExistsQuery => new ExistsQuery(field),
   ids: (ids: string | string[]): IdsQuery => new IdsQuery(ids),
+  termsSet: (field: ESField, terms: ESValue[]): TermsSetQuery => new TermsSetQuery(field, terms),
 
   // Compound queries
   boosting: (positive: Query, negative: Query, negativeBoost?: number): BoostingQuery =>
     new BoostingQuery(positive, negative, negativeBoost),
   constantScore: (filter: Query, boost?: number): ConstantScoreQuery =>
     new ConstantScoreQuery(filter, boost),
+  disMax: (queries?: Query[]): DisMaxQuery => new DisMaxQuery(queries),
+  functionScore: (query?: Query): FunctionScoreQuery => new FunctionScoreQuery(query),
 
   // Joining queries
   nested: (path: ESField, query: Query): NestedQuery => new NestedQuery(path, query),
@@ -58,6 +68,8 @@ export const Q = {
     new MoreLikeThisQuery(fields, like),
   scriptScore: (query: Query, script: ScriptConfig): ScriptScoreQuery =>
     new ScriptScoreQuery(query, script),
+  queryString: (query: string): QueryStringQuery => new QueryStringQuery(query),
+  simpleQueryString: (query: string): SimpleQueryStringQuery => new SimpleQueryStringQuery(query),
 
   // Convenience combinators
   and: (...queries: Query[]): BoolQuery => {
@@ -162,7 +174,8 @@ export type QueryFactory = typeof Q;
 export {
   BoolQuery, TermQuery, TermsQuery, MatchQuery, MatchPhraseQuery, MultiMatchQuery, MatchAllQuery,
   RangeQuery, WildcardQuery, PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery,
-  BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery
+  BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery,
+  QueryStringQuery, SimpleQueryStringQuery, MatchPhrasePrefixQuery, TermsSetQuery, DisMaxQuery, FunctionScoreQuery
 };
 export { Query } from './core/Query.js';
 export type { QueryBody, QueryMetadata, Operation } from './core/types.js';
