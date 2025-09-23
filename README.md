@@ -2,16 +2,18 @@
 
 Immutable OpenSearch DSL for JavaScript/TypeScript - inspired by Python's elasticsearch-dsl
 
-[![npm version](https://badge.fury.io/js/opensearch-dsl-js.svg)](https://badge.fury.io/js/opensearch-dsl-js)
+[![npm version](https://img.shields.io/npm/v/opensearch-dsl-js.svg)](https://www.npmjs.com/package/opensearch-dsl-js)
+[![npm downloads](https://img.shields.io/npm/dm/opensearch-dsl-js.svg)](https://www.npmjs.com/package/opensearch-dsl-js)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Tests](https://img.shields.io/badge/tests-116%20passing-brightgreen.svg)](#testing)
 
 ## Features
 
 - **Immutable** - Every operation returns a new instance, ensuring safe composition
 - **Fluent API** - Chainable methods for readable query construction
 - **Type Safe** - Full TypeScript support with comprehensive type definitions
-- **Thoroughly Tested** - 43 tests covering positive, negative, and edge cases
+- **Thoroughly Tested** - 116 tests covering immutability, API contracts, and edge cases
 - **Python-inspired** - Familiar API if you know Python's elasticsearch-dsl
 - **Conditional Logic** - `.when()` and `.unless()` for dynamic query building
 - **Safe Composition** - Share queries between functions without side effects
