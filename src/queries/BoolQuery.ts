@@ -171,4 +171,48 @@ export class BoolQuery extends Query<BoolQueryBody> {
       mustNot: bool.must_not?.length || 0
     };
   }
+
+  /**
+   * Validation messages for the query structure
+   */
+  validate(): Array<{ type: 'error' | 'warning' | 'info'; message: string; path?: string }> {
+    const messages: Array<{ type: 'error' | 'warning' | 'info'; message: string; path?: string }> = [];
+    const bool = this._body.bool;
+
+    // Check for should clauses without minimum_should_match
+    if (bool.should && bool.should.length > 0 && !bool.minimum_should_match) {
+      messages.push({
+        type: 'warning',
+        message: 'SHOULD clauses without minimum_should_match are optional and may not affect relevance as expected',
+        path: 'bool.minimum_should_match'
+      });
+    }
+
+    // Check for empty bool query
+    if (this.isEmpty()) {
+      messages.push({
+        type: 'warning',
+        message: 'Empty bool query - no clauses defined',
+        path: 'bool'
+      });
+    }
+
+    // Check for only should clauses with minimum_should_match >= should count
+    if (bool.should && bool.should.length > 0 && !bool.must?.length && !bool.filter?.length && bool.minimum_should_match) {
+      const shouldCount = bool.should.length;
+      const minMatch = typeof bool.minimum_should_match === 'string'
+        ? parseInt(bool.minimum_should_match)
+        : bool.minimum_should_match;
+
+      if (minMatch >= shouldCount) {
+        messages.push({
+          type: 'info',
+          message: `minimum_should_match (${bool.minimum_should_match}) equals or exceeds should clause count (${shouldCount}) - all should clauses must match`,
+          path: 'bool.minimum_should_match'
+        });
+      }
+    }
+
+    return messages;
+  }
 }

@@ -28,6 +28,7 @@ import { MatchPhrasePrefixQuery } from './queries/MatchPhrasePrefixQuery.js';
 import { TermsSetQuery } from './queries/TermsSetQuery.js';
 import { DisMaxQuery } from './queries/DisMaxQuery.js';
 import { FunctionScoreQuery, FunctionConfig } from './queries/FunctionScoreQuery.js';
+import { RegexpQuery } from './queries/RegexpQuery.js';
 import { Query } from './core/Query.js';
 import { ESValue, ESField } from './core/types.js';
 
@@ -48,6 +49,7 @@ export const Q = {
   wildcard: (field: ESField, pattern: string): WildcardQuery => new WildcardQuery(field, pattern),
   prefix: (field: ESField, value: string): PrefixQuery => new PrefixQuery(field, value),
   fuzzy: (field: ESField, value: ESValue): FuzzyQuery => new FuzzyQuery(field, value),
+  regexp: (field: ESField, pattern: string): RegexpQuery => new RegexpQuery(field, pattern),
   exists: (field: ESField): ExistsQuery => new ExistsQuery(field),
   ids: (ids: string | string[]): IdsQuery => new IdsQuery(ids),
   termsSet: (field: ESField, terms: ESValue[]): TermsSetQuery => new TermsSetQuery(field, terms),
@@ -173,7 +175,7 @@ export type QueryFactory = typeof Q;
 // Export individual query types for advanced usage
 export {
   BoolQuery, TermQuery, TermsQuery, MatchQuery, MatchPhraseQuery, MultiMatchQuery, MatchAllQuery,
-  RangeQuery, WildcardQuery, PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery,
+  RangeQuery, WildcardQuery, PrefixQuery, FuzzyQuery, RegexpQuery, ExistsQuery, IdsQuery,
   BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery,
   QueryStringQuery, SimpleQueryStringQuery, MatchPhrasePrefixQuery, TermsSetQuery, DisMaxQuery, FunctionScoreQuery
 };

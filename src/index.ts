@@ -19,6 +19,7 @@ export { RangeQuery } from './queries/RangeQuery.js';
 export { WildcardQuery } from './queries/WildcardQuery.js';
 export { PrefixQuery } from './queries/PrefixQuery.js';
 export { FuzzyQuery } from './queries/FuzzyQuery.js';
+export { RegexpQuery } from './queries/RegexpQuery.js';
 export { ExistsQuery } from './queries/ExistsQuery.js';
 export { IdsQuery } from './queries/IdsQuery.js';
 export { BoostingQuery } from './queries/BoostingQuery.js';
