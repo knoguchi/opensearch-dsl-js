@@ -1,6 +1,6 @@
 {
   "name": "opensearch-dsl-js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Immutable OpenSearch DSL for JavaScript/TypeScript - inspired by Python elasticsearch-dsl",
   "main": "dist/index.js",
