@@ -8,6 +8,15 @@ import { BoolQuery } from './queries/BoolQuery.js';
 import { TermQuery } from './queries/TermQuery.js';
 import { MatchQuery } from './queries/MatchQuery.js';
 import { RangeQuery } from './queries/RangeQuery.js';
+import { WildcardQuery } from './queries/WildcardQuery.js';
+import { PrefixQuery } from './queries/PrefixQuery.js';
+import { ExistsQuery } from './queries/ExistsQuery.js';
+import { TermsQuery } from './queries/TermsQuery.js';
+import { IdsQuery } from './queries/IdsQuery.js';
+import { MatchPhraseQuery } from './queries/MatchPhraseQuery.js';
+import { MultiMatchQuery } from './queries/MultiMatchQuery.js';
+import { MatchAllQuery } from './queries/MatchAllQuery.js';
+import { FuzzyQuery } from './queries/FuzzyQuery.js';
 import { Query } from './core/Query.js';
 import { ESValue, ESField } from './core/types.js';
 
@@ -18,8 +27,17 @@ export const Q = {
   // Basic query constructors
   bool: (): BoolQuery => new BoolQuery(),
   term: (field: ESField, value: ESValue): TermQuery => new TermQuery(field, value),
+  terms: (field: ESField, values: ESValue[]): TermsQuery => new TermsQuery(field, values),
   match: (field: ESField, query: string): MatchQuery => new MatchQuery(field, query),
+  matchPhrase: (field: ESField, phrase: string): MatchPhraseQuery => new MatchPhraseQuery(field, phrase),
+  multiMatch: (query: string, fields: ESField | ESField[]): MultiMatchQuery => new MultiMatchQuery(query, fields),
+  matchAll: (): MatchAllQuery => new MatchAllQuery(),
   range: (field: ESField): RangeQuery => new RangeQuery(field),
+  wildcard: (field: ESField, pattern: string): WildcardQuery => new WildcardQuery(field, pattern),
+  prefix: (field: ESField, value: string): PrefixQuery => new PrefixQuery(field, value),
+  fuzzy: (field: ESField, value: ESValue): FuzzyQuery => new FuzzyQuery(field, value),
+  exists: (field: ESField): ExistsQuery => new ExistsQuery(field),
+  ids: (ids: string | string[]): IdsQuery => new IdsQuery(ids),
 
   // Convenience combinators
   and: (...queries: Query[]): BoolQuery => {
@@ -35,10 +53,6 @@ export const Q = {
   },
 
   // Common patterns
-  exists: (field: ESField): RangeQuery => {
-    // Use range query with exists pattern
-    return new RangeQuery(field).gte(null);
-  },
 
   filter: (...queries: Query[]): BoolQuery => {
     return new BoolQuery().filter(queries);
@@ -125,6 +139,9 @@ export const Q = {
 export type QueryFactory = typeof Q;
 
 // Export individual query types for advanced usage
-export { BoolQuery, TermQuery, MatchQuery, RangeQuery };
+export {
+  BoolQuery, TermQuery, TermsQuery, MatchQuery, MatchPhraseQuery, MultiMatchQuery, MatchAllQuery,
+  RangeQuery, WildcardQuery, PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery
+};
 export { Query } from './core/Query.js';
 export type { QueryBody, QueryMetadata, Operation } from './core/types.js';
