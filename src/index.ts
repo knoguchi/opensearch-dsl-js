@@ -21,6 +21,11 @@ export { PrefixQuery } from './queries/PrefixQuery.js';
 export { FuzzyQuery } from './queries/FuzzyQuery.js';
 export { ExistsQuery } from './queries/ExistsQuery.js';
 export { IdsQuery } from './queries/IdsQuery.js';
+export { BoostingQuery } from './queries/BoostingQuery.js';
+export { ConstantScoreQuery } from './queries/ConstantScoreQuery.js';
+export { NestedQuery } from './queries/NestedQuery.js';
+export { MoreLikeThisQuery } from './queries/MoreLikeThisQuery.js';
+export { ScriptScoreQuery } from './queries/ScriptScoreQuery.js';
 
 // Export base classes and types
 export { Query } from './core/Query.js';

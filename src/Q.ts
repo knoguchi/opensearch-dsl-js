@@ -17,6 +17,11 @@ import { MatchPhraseQuery } from './queries/MatchPhraseQuery.js';
 import { MultiMatchQuery } from './queries/MultiMatchQuery.js';
 import { MatchAllQuery } from './queries/MatchAllQuery.js';
 import { FuzzyQuery } from './queries/FuzzyQuery.js';
+import { BoostingQuery } from './queries/BoostingQuery.js';
+import { ConstantScoreQuery } from './queries/ConstantScoreQuery.js';
+import { NestedQuery } from './queries/NestedQuery.js';
+import { MoreLikeThisQuery, LikeDocument } from './queries/MoreLikeThisQuery.js';
+import { ScriptScoreQuery, ScriptConfig } from './queries/ScriptScoreQuery.js';
 import { Query } from './core/Query.js';
 import { ESValue, ESField } from './core/types.js';
 
@@ -38,6 +43,21 @@ export const Q = {
   fuzzy: (field: ESField, value: ESValue): FuzzyQuery => new FuzzyQuery(field, value),
   exists: (field: ESField): ExistsQuery => new ExistsQuery(field),
   ids: (ids: string | string[]): IdsQuery => new IdsQuery(ids),
+
+  // Compound queries
+  boosting: (positive: Query, negative: Query, negativeBoost?: number): BoostingQuery =>
+    new BoostingQuery(positive, negative, negativeBoost),
+  constantScore: (filter: Query, boost?: number): ConstantScoreQuery =>
+    new ConstantScoreQuery(filter, boost),
+
+  // Joining queries
+  nested: (path: ESField, query: Query): NestedQuery => new NestedQuery(path, query),
+
+  // Specialized queries
+  moreLikeThis: (fields: ESField | ESField[], like: LikeDocument | LikeDocument[]): MoreLikeThisQuery =>
+    new MoreLikeThisQuery(fields, like),
+  scriptScore: (query: Query, script: ScriptConfig): ScriptScoreQuery =>
+    new ScriptScoreQuery(query, script),
 
   // Convenience combinators
   and: (...queries: Query[]): BoolQuery => {
@@ -141,7 +161,8 @@ export type QueryFactory = typeof Q;
 // Export individual query types for advanced usage
 export {
   BoolQuery, TermQuery, TermsQuery, MatchQuery, MatchPhraseQuery, MultiMatchQuery, MatchAllQuery,
-  RangeQuery, WildcardQuery, PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery
+  RangeQuery, WildcardQuery, PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery,
+  BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery
 };
 export { Query } from './core/Query.js';
 export type { QueryBody, QueryMetadata, Operation } from './core/types.js';

@@ -9,7 +9,8 @@ import { Q } from '../src/Q.js';
 import {
   BoolQuery, TermQuery, TermsQuery, MatchQuery, MatchPhraseQuery,
   MultiMatchQuery, MatchAllQuery, RangeQuery, WildcardQuery,
-  PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery
+  PrefixQuery, FuzzyQuery, ExistsQuery, IdsQuery,
+  BoostingQuery, ConstantScoreQuery, NestedQuery, MoreLikeThisQuery, ScriptScoreQuery
 } from '../src/index.js';
 
 describe('Q Helper API - Type Contracts', () => {
@@ -76,6 +77,37 @@ describe('Q Helper API - Type Contracts', () => {
   test('Q.ids() returns IdsQuery instance', () => {
     const query = Q.ids(['doc1', 'doc2']);
     expect(query).toBeInstanceOf(IdsQuery);
+  });
+
+  test('Q.boosting() returns BoostingQuery instance', () => {
+    const positive = Q.term('category', 'tech');
+    const negative = Q.term('deprecated', true);
+    const query = Q.boosting(positive, negative, 0.5);
+    expect(query).toBeInstanceOf(BoostingQuery);
+  });
+
+  test('Q.constantScore() returns ConstantScoreQuery instance', () => {
+    const filter = Q.term('status', 'active');
+    const query = Q.constantScore(filter, 1.5);
+    expect(query).toBeInstanceOf(ConstantScoreQuery);
+  });
+
+  test('Q.nested() returns NestedQuery instance', () => {
+    const innerQuery = Q.term('user.name', 'john');
+    const query = Q.nested('user', innerQuery);
+    expect(query).toBeInstanceOf(NestedQuery);
+  });
+
+  test('Q.moreLikeThis() returns MoreLikeThisQuery instance', () => {
+    const query = Q.moreLikeThis(['title', 'content'], 'sample text');
+    expect(query).toBeInstanceOf(MoreLikeThisQuery);
+  });
+
+  test('Q.scriptScore() returns ScriptScoreQuery instance', () => {
+    const innerQuery = Q.matchAll();
+    const script = { source: '_score * doc["boost"].value' };
+    const query = Q.scriptScore(innerQuery, script);
+    expect(query).toBeInstanceOf(ScriptScoreQuery);
   });
 });
 
@@ -199,6 +231,63 @@ describe('Q Helper API - JSON Output Validation', () => {
     expect(query.toJSON()).toEqual({
       ids: {
         values: ['doc1']
+      }
+    });
+  });
+
+  test('Q.boosting() generates correct boosting query', () => {
+    const positive = Q.term('category', 'tech');
+    const negative = Q.term('deprecated', true);
+    const query = Q.boosting(positive, negative, 0.3);
+    expect(query.toJSON()).toEqual({
+      boosting: {
+        positive: { term: { category: 'tech' } },
+        negative: { term: { deprecated: true } },
+        negative_boost: 0.3
+      }
+    });
+  });
+
+  test('Q.constantScore() generates correct constant_score query', () => {
+    const filter = Q.term('status', 'active');
+    const query = Q.constantScore(filter, 1.5);
+    expect(query.toJSON()).toEqual({
+      constant_score: {
+        filter: { term: { status: 'active' } },
+        boost: 1.5
+      }
+    });
+  });
+
+  test('Q.nested() generates correct nested query', () => {
+    const innerQuery = Q.term('user.name', 'john');
+    const query = Q.nested('user', innerQuery);
+    expect(query.toJSON()).toEqual({
+      nested: {
+        path: 'user',
+        query: { term: { 'user.name': 'john' } }
+      }
+    });
+  });
+
+  test('Q.moreLikeThis() generates correct more_like_this query', () => {
+    const query = Q.moreLikeThis(['title'], 'sample text');
+    expect(query.toJSON()).toEqual({
+      more_like_this: {
+        fields: ['title'],
+        like: ['sample text']
+      }
+    });
+  });
+
+  test('Q.scriptScore() generates correct script_score query', () => {
+    const innerQuery = Q.matchAll();
+    const script = { source: '_score * 2' };
+    const query = Q.scriptScore(innerQuery, script);
+    expect(query.toJSON()).toEqual({
+      script_score: {
+        query: { match_all: {} },
+        script: { source: '_score * 2' }
       }
     });
   });
